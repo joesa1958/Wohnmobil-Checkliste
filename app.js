@@ -105,6 +105,7 @@ const I = {
   rainshirt: '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 8.5l-4 2.3 1.6 3.2 2.4-.8V22h6v-8.8l2.4.8 1.6-3.2-4-2.3c0 1.3-1 2.3-3 2.3s-3-1-3-2.3z"/><path d="M5.5 4.6c0 .8-.6 1.4-1.2 1.4S3.1 5.4 3.1 4.6c0-.8 1.2-2 1.2-2s1.2 1.2 1.2 2zM20.9 4.6c0 .8-.6 1.4-1.2 1.4s-1.2-.6-1.2-1.4c0-.8 1.2-2 1.2-2s1.2 1.2 1.2 2zM13.2 4.1c0 .8-.6 1.4-1.2 1.4s-1.2-.6-1.2-1.4c0-.8 1.2-2 1.2-2s1.2 1.2 1.2 2z"/></g></svg>',
   windshield: '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20L5 5.5C9.5 4 14.5 4 19 5.5L21 20C15 18.6 9 18.6 3 20z"/><path d="M12 19v-1.6M12 17.4l-5.5-6.4"/><path d="M1.2 8h1.8M21 8h1.8"/></g></svg>',
   heater: '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="9" rx="2"/><path d="M8 11v9M12 11v9M16 11v9M6 20v1.5M18 20v1.5M8 8c-1-1.2 1-2.3 0-3.5M12 8c-1-1.2 1-2.3 0-3.5M16 8c-1-1.2 1-2.3 0-3.5"/></g></svg>',
+  shower: '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V7a4 4 0 0 1 8 0M9 9.5h6a3 3 0 0 0-6 0zM10 13v1M12 13v2M14 13v1M11 17v1M13 17v1"/></g></svg>',
   list: '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="4.5" cy="6" r="1.4" fill="currentColor"/><circle cx="4.5" cy="12" r="1.4" fill="currentColor"/><circle cx="4.5" cy="18" r="1.4" fill="currentColor"/></svg>',
   edit: '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   chev: '<svg class="chev" width="8" height="14" viewBox="0 0 8 14" aria-hidden="true"><path d="M1.5 1.5 6.5 7l-5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -148,7 +149,7 @@ const FARBEN = { // [Seitenhintergrund, Farbe, dunkel] – deutlich unterscheidb
   rot: ['#FCE4E1', '#D63A2F', '#9E2419'], rotbraun: ['#FDEBDB', '#E07415', '#A65208'], gelb: ['#FBF1CF', '#C29200', '#8A6700']
 };
 const ICONS = ['van', 'gift', 'go', 'tent', 'home', 'bag', 'cart', 'bike', 'snow', 'sun', 'drop', 'flame', 'bolt', 'wrench', 'key', 'medic', 'paw', 'flag', 'list'];
-const ITEM_ICONS = ['gift', 'bike', 'awning', 'window', 'door', 'cabinet', 'lock', 'toilet', 'fan', 'wedge', 'fuel', 'oil', 'canister', 'wiper', 'windshield', 'heater', 'gasbottle', 'waste', 'gauge', 'nav', 'bikini', 'rainshirt', 'plant', 'shield', 'tap', 'bottle', 'roll', 'doc', 'map', 'box', 'bowl', 'leash', 'blanket', 'bed', 'shoe', 'shirt', 'umbrella', 'pill', 'cream', 'tooth', 'scissors', 'glasses', 'towel', 'bug', 'torch', 'headphones', 'laptop', 'dice', 'binoculars', 'gem', 'coffee', 'cheese', 'jar', 'apple', 'egg', 'beer', 'wine', 'pot', 'step', 'support', 'plug', 'bolt', 'drop', 'flame', 'tire', 'light', 'fridge', 'trash', 'key', 'wrench', 'medic', 'snow', 'sun', 'paw', 'flag'];
+const ITEM_ICONS = ['gift', 'bike', 'awning', 'window', 'door', 'cabinet', 'lock', 'toilet', 'fan', 'wedge', 'fuel', 'oil', 'canister', 'wiper', 'windshield', 'heater', 'shower', 'gasbottle', 'waste', 'gauge', 'nav', 'bikini', 'rainshirt', 'plant', 'shield', 'tap', 'bottle', 'roll', 'doc', 'map', 'box', 'bowl', 'leash', 'blanket', 'bed', 'shoe', 'shirt', 'umbrella', 'pill', 'cream', 'tooth', 'scissors', 'glasses', 'towel', 'bug', 'torch', 'headphones', 'laptop', 'dice', 'binoculars', 'gem', 'coffee', 'cheese', 'jar', 'apple', 'egg', 'beer', 'wine', 'pot', 'step', 'support', 'plug', 'bolt', 'drop', 'flame', 'tire', 'light', 'fridge', 'trash', 'key', 'wrench', 'medic', 'snow', 'sun', 'paw', 'flag'];
 const itemIcon = (ic, cls = '') => ic && I[ic] ? `<span class="itemicon ${cls}" aria-hidden="true">${I[ic]}</span>` : '';
 const DEFAULT_COLOR = { womo: 'petrol', sachen: 'rotbraun', abfahrt: 'petrol', camping: 'gruen', zuhause: 'gruen', einwintern: 'blau', auswintern: 'gelb' };
 const meta = id => { const L = view.lists[id]; return L ? { id, name: L.name || 'Liste', done: L.done || 'Alles erledigt!', icon: I[L.icon] && ICONS.includes(L.icon) ? L.icon : 'list', color: FARBEN[L.color] ? L.color : (DEFAULT_COLOR[id] || 'grau') } : null; };
@@ -296,6 +297,7 @@ const store = {
 let view = computeView();
 function computeView() { const d = ensureLists(clone(store.base)); store.pending.forEach(op => applyOp(d, op)); return d; }
 function persist() { lsSet('base', store.base); lsSet('rev', store.rev); lsSet('pending', store.pending); lsSet('lastSync', store.lastSync); }
+function commitMany(ops) { store.pending.push(...ops); persist(); view = computeView(); render(); scheduleSync(); }
 function commit(op) {
   store.pending.push(op); persist(); view = computeView(); render(); scheduleSync();
 }
@@ -656,13 +658,19 @@ function vEdit(id) {
     </header>
     <main class="content">${secs}
       <button class="dashed" data-act="addSection">Abschnitt hinzufügen</button>
+      ${pasteOpen === id ? `<form class="card pastebox" data-act="paste">
+        <label for="pastetext" class="pickhead">Mehrere Punkte einfügen</label>
+        <textarea id="pastetext" rows="8" placeholder="Eine Zeile pro Punkt, z. B.&#10;## Abschnitt&#10;Stichwort | Erklärung | Symbol"></textarea>
+        <p class="hint">Eine Zeile pro Punkt. Erklärung und Symbol sind freiwillig und werden mit | getrennt. Eine Zeile mit ## davor legt einen Abschnitt an.</p>
+        <div style="display:flex;gap:8px"><button type="button" class="secondary" data-act="pasteToggle">Abbrechen</button><button class="primary" style="min-height:50px;font-size:17px">Einfügen</button></div>
+      </form>` : `<button class="dashed" data-act="pasteToggle">Mehrere Punkte einfügen</button>`}
       <p class="hint">Das Feld links vor einem Punkt wählt ein Symbol, das Kopier-Symbol rechts dupliziert den Punkt oder kopiert ihn in eine andere Liste. Unter jedem Punkt kann eine Erklärung stehen – sie erscheint beim Prüfen unter dem Stichwort. Zuständigkeit: Feld antippen wechselt zwischen Jörg, Anne, Beide und niemand. Reihenfolge: rechts am Griff ziehen. Änderungen werden sofort gespeichert.</p>
     </main>
     <a class="foot" href="#/einstellungen" data-status></a>
   </div>`;
 }
 
-let iconPick = null, itemPick = null, itemMenu = null;
+let iconPick = null, itemPick = null, itemMenu = null, pasteOpen = null;
 function vLists() {
   const groups = view.groups.map((g, gi) => `<section class="group" data-s="${g.id}">
     <div class="grouphead">
@@ -890,6 +898,7 @@ document.addEventListener('click', e => {
       const next = RESP_CYCLE[(RESP_CYCLE.indexOf(f.item.resp || '') + 1) % RESP_CYCLE.length];
       commit({ t: 'editItem', l: id, i: f.item.id, patch: { resp: next } }); break;
     }
+    case 'pasteToggle': pasteOpen = pasteOpen === id ? null : id; render(); if (pasteOpen) { const t = $('#pastetext'); if (t) t.focus(); } break;
     case 'addSection': {
       const sid = 's-' + uid(); commit({ t: 'addSection', l: id, sec: { id: sid, title: '' } });
       const inp = document.querySelector(`.sectitle[data-s="${sid}"]`); if (inp) inp.focus(); break;
@@ -937,6 +946,26 @@ document.addEventListener('keydown', e => {
 document.addEventListener('submit', async e => {
   e.preventDefault();
   const f = e.target, r = route();
+  if (f.dataset.act === 'paste') {
+    const L = view.lists[r.id]; const lines = f.querySelector('textarea').value.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+    if (!lines.length) return;
+    const ops = []; let sid = L.sections[L.sections.length - 1].id, n = 0;
+    const firstEmpty = L.sections.length === 1 && !L.sections[0].title && !L.sections[0].items.length;
+    let usedFirst = false;
+    lines.forEach(line => {
+      if (line.startsWith('#')) {
+        const title = line.replace(/^#+\s*/, '');
+        if (firstEmpty && !usedFirst && !n) { ops.push({ t: 'renameSection', l: r.id, s: L.sections[0].id, title }); usedFirst = true; return; }
+        sid = 's-' + uid(); ops.push({ t: 'addSection', l: r.id, sec: { id: sid, title } }); return;
+      }
+      const [text, note, icon] = line.split('|').map(x => (x || '').trim());
+      if (!text) return;
+      ops.push({ t: 'addItem', l: r.id, s: sid, item: { id: 'i-' + uid() + n, text, note: note || '', icon: I[icon] && ITEM_ICONS.includes(icon) ? icon : '', resp: 'B', sel: true } });
+      n++;
+    });
+    pasteOpen = null; commitMany(ops); toast(`${n} Punkt${n === 1 ? '' : 'e'} eingefügt`);
+    return;
+  }
   if (f.dataset.act === 'addList') {
     const inp = f.querySelector('input'), name = inp.value.trim(); if (!name) return;
     commit({ t: 'addList', g: f.dataset.s, list: { id: 'l-' + uid(), name, icon: 'list' } });
@@ -1010,7 +1039,7 @@ document.addEventListener('pointercancel', endDrag);
 
 /* ---------- Start ---------- */
 /* Neue Version der Seite erkennen und laden (iPhone hält sonst die alte im Speicher) */
-const APP_VERSION = 35;
+const APP_VERSION = 36;
 async function checkUpdate() {
   try {
     const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
