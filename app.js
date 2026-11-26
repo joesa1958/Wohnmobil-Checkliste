@@ -328,7 +328,7 @@ async function pkce() {
 let prepared = null;
 function preparePkce() {
   prepared = null;
-  pkce().then(x => { prepared = x; if (route().v === 'settings') render(); }).catch(err => toast('Anmeldung nicht möglich: ' + err.message));
+  pkce().then(x => { prepared = x; if (route().v === 'settings' || !connected()) render(); }).catch(err => toast('Anmeldung nicht möglich: ' + err.message));
 }
 preparePkce();
 function loginHref(withRedirect) {
@@ -734,7 +734,7 @@ function vLogin() {
     <img src="apple-touch-icon.png" alt="" style="width:96px;height:96px;border-radius:22px">
     <h2 style="margin:0;font-size:26px">Wohnmobil-Checkliste</h2>
     <p class="sub" style="max-width:320px">Die Listen liegen in eurer Dropbox. Ohne Verbindung wird nichts angezeigt.</p>
-    <button class="primary" data-act="login" style="max-width:340px">Verbindung zur Dropbox herstellen</button>
+    <a class="primary" data-act="login" href="${esc(loginHref(!isStandalone()))}" ${isStandalone() ? 'target="_blank" rel="noopener"' : ''} style="max-width:340px;display:flex;align-items:center;justify-content:center;text-decoration:none">Verbindung zur Dropbox herstellen</a>
     ${code ? `<form class="field" data-act="code" style="width:100%;max-width:340px;border:0;padding:0"><label for="code">Nach der Anmeldung zeigt Dropbox einen Code. Kopieren und hier einfügen:</label>
       <input id="code" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Code einfügen"><button class="secondary" style="margin-top:6px">Code bestätigen</button></form>` : ''}
     <p class="hint" style="max-width:320px">Tipp: In Safari über Teilen › Zum Home-Bildschirm ablegen, dann über das Symbol öffnen und dort verbinden.</p>
@@ -1064,7 +1064,7 @@ document.addEventListener('pointercancel', endDrag);
 
 /* ---------- Start ---------- */
 /* Neue Version der Seite erkennen und laden (iPhone hält sonst die alte im Speicher) */
-const APP_VERSION = 38;
+const APP_VERSION = 39;
 async function checkUpdate() {
   try {
     const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
