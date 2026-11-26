@@ -204,3 +204,11 @@ li.placeholder { background: var(--sel); border-top: 1px solid var(--line2); }
 
 .delbox { display: flex; flex-direction: column; gap: 8px; padding: 12px; margin-bottom: 4px; }
 .delbox .secondary { min-height: 46px; font-size: 15px; }
+
+/* Eigene Symbole (Emoji) */
+.emo { font-size: 1.15em; line-height: 1; font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
+.listicon .emo { font-size: 24px; }
+.bigicon .emo { font-size: 40px; }
+.ipick .emo { font-size: 20px; }
+.emorow { display: flex; align-items: center; gap: 10px; font-size: 15px; color: var(--muted); }
+.emoinput { width: 64px; min-height: 44px; font-size: 26px; text-align: center; border: 1.5px dashed var(--line); border-radius: 12px; background: var(--card); }

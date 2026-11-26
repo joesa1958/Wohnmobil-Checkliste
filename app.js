@@ -150,9 +150,13 @@ const FARBEN = { // [Seitenhintergrund, Farbe, dunkel] – deutlich unterscheidb
 };
 const ICONS = ['van', 'gift', 'go', 'tent', 'home', 'bag', 'cart', 'bike', 'snow', 'sun', 'drop', 'flame', 'bolt', 'wrench', 'key', 'medic', 'paw', 'flag', 'list'];
 const ITEM_ICONS = ['gift', 'bike', 'awning', 'window', 'door', 'cabinet', 'lock', 'toilet', 'fan', 'wedge', 'fuel', 'oil', 'canister', 'wiper', 'windshield', 'heater', 'shower', 'gasbottle', 'waste', 'gauge', 'nav', 'bikini', 'rainshirt', 'plant', 'shield', 'tap', 'bottle', 'roll', 'doc', 'map', 'box', 'bowl', 'leash', 'blanket', 'bed', 'shoe', 'shirt', 'umbrella', 'pill', 'cream', 'tooth', 'scissors', 'glasses', 'towel', 'bug', 'torch', 'headphones', 'laptop', 'dice', 'binoculars', 'gem', 'coffee', 'cheese', 'jar', 'apple', 'egg', 'beer', 'wine', 'pot', 'step', 'support', 'plug', 'bolt', 'drop', 'flame', 'tire', 'light', 'fridge', 'trash', 'key', 'wrench', 'medic', 'snow', 'sun', 'paw', 'flag'];
-const itemIcon = (ic, cls = '') => ic && I[ic] ? `<span class="itemicon ${cls}" aria-hidden="true">${I[ic]}</span>` : '';
+/* Eigene Symbole: jedes Emoji ist als Symbol erlaubt (wird wie die eingebauten gespeichert) */
+const isEmo = v => typeof v === 'string' && !!v && !I[v] && [...v].length <= 12 && /\p{Extended_Pictographic}/u.test(v);
+const ico = v => I[v] || (isEmo(v) ? `<span class="emo">${esc(v)}</span>` : '');
+const firstEmo = v => { const seg = typeof Intl !== 'undefined' && Intl.Segmenter ? [...new Intl.Segmenter('de', { granularity: 'grapheme' }).segment(v)].map(x => x.segment) : [...v]; return seg.find(isEmo) || ''; };
+const itemIcon = (ic, cls = '') => ic && ico(ic) ? `<span class="itemicon ${cls}" aria-hidden="true">${ico(ic)}</span>` : '';
 const DEFAULT_COLOR = { womo: 'petrol', sachen: 'rotbraun', abfahrt: 'petrol', camping: 'gruen', zuhause: 'gruen', einwintern: 'blau', auswintern: 'gelb' };
-const meta = id => { const L = view.lists[id]; return L ? { id, name: L.name || 'Liste', done: L.done || 'Alles erledigt!', icon: I[L.icon] && ICONS.includes(L.icon) ? L.icon : 'list', color: FARBEN[L.color] ? L.color : (DEFAULT_COLOR[id] || 'grau') } : null; };
+const meta = id => { const L = view.lists[id]; return L ? { id, name: L.name || 'Liste', done: L.done || 'Alles erledigt!', icon: (I[L.icon] && ICONS.includes(L.icon)) || isEmo(L.icon) ? L.icon : 'list', color: FARBEN[L.color] ? L.color : (DEFAULT_COLOR[id] || 'grau') } : null; };
 const slugId = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 function emptyDoc() { return ensureLists({ v: 1, lists: {} }); }
 function newList(id, name, icon, done) { return { name, icon, done: done || 'Alles erledigt!', sections: [{ id: 's-' + id, title: '', items: [] }], lastDone: null }; }
@@ -507,7 +511,7 @@ function vHome() {
   </div>`;
 }
 
-const listIcon = (icon, color = 'grau') => `<span class="listicon" style="background:${FARBEN[color][1]};color:#FFFFFF">${I[icon]}</span>`;
+const listIcon = (icon, color = 'grau') => `<span class="listicon" style="background:${FARBEN[color][1]};color:#FFFFFF">${ico(icon)}</span>`;
 function topBar(backHref, backLabel, right) {
   return `<div class="bar"><a class="back" href="${backHref}">${I.back}${esc(backLabel)}</a><div class="icons">${right}</div></div>`;
 }
@@ -553,7 +557,7 @@ function vRun(id) {
     const secList = multiSec ? secListHtml(st, secNames, secOf, false) : '';
     return `<div class="screen"><div class="run">${head('')}
       <div class="finished intro">
-        <span class="listicon" ${big}>${I[m.icon]}</span>
+        <span class="listicon" ${big}>${ico(m.icon)}</span>
         <h2>${esc(m.name)}</h2>
         <div class="sub">${st.begun ? `${st.doneCount} von ${st.total} erledigt` : `${st.total} Punkt${st.total === 1 ? '' : 'e'}`}${multiSec && secNames.length > 1 ? ` in ${secNames.length} Abschnitten` : ''}${st.total < items.length ? ` · ${items.length - st.total} abgewählt` : ''}</div>
         ${secList}
@@ -580,7 +584,7 @@ function vRun(id) {
     ${progress}
     <div class="current">
       <div class="sec">${multiSec ? `<button class="secbtn" data-act="secPick">${esc(cs || m.name)}${secNames.length > 1 ? ` · Abschnitt ${si + 1} von ${secNames.length}` : ''} · ${posInSec}/${inSec.length} <span aria-hidden="true">▾</span></button>` : esc(m.name)}</div>
-      ${cur.it.icon && I[cur.it.icon] ? `<div class="bigicon" aria-hidden="true">${I[cur.it.icon]}</div>` : ''}
+      ${cur.it.icon && ico(cur.it.icon) ? `<div class="bigicon" aria-hidden="true">${ico(cur.it.icon)}</div>` : ''}
       <div class="big">${esc(cur.it.text)}</div>
       ${cur.it.note ? `<div class="explain">${esc(cur.it.note)}</div>` : ''}
       ${cur.it.resp ? `<div class="resp">Zuständig: ${chip(cur.it.resp)}</div>` : ''}
@@ -636,7 +640,7 @@ function vEdit(id) {
     <div class="card"><ul class="items" data-s="${s.id}">
       ${s.items.map(it => `<li data-i="${it.id}"><div class="erow">
         <button class="minus" data-act="delItem" data-i="${it.id}" aria-label="Punkt löschen"><span></span></button>
-        <button class="ipick ${it.icon ? '' : 'none'}" data-act="pickItemIcon" data-i="${it.id}" aria-label="Symbol für diesen Punkt">${it.icon && I[it.icon] ? I[it.icon] : '+'}</button>
+        <button class="ipick ${it.icon ? '' : 'none'}" data-act="pickItemIcon" data-i="${it.id}" aria-label="Symbol für diesen Punkt">${ico(it.icon) || '+'}</button>
         <div class="etext"><textarea rows="1" data-act="itemText" data-i="${it.id}" aria-label="Punkt umbenennen" enterkeyhint="done">${esc(it.text)}</textarea>
           <textarea rows="1" class="note" data-act="itemNote" data-i="${it.id}" aria-label="Erklärung zu „${esc(it.text)}“" placeholder="Erklärung …">${esc(it.note || '')}</textarea></div>
         <button class="chip ${it.resp || 'none'}" data-act="cycleResp" data-i="${it.id}" aria-label="Zuständig: ${it.resp ? PEOPLE[it.resp] : 'niemand'} – antippen zum Ändern">${it.resp ? PEOPLE[it.resp] : 'Zuständig?'}</button>
@@ -651,6 +655,7 @@ function vEdit(id) {
       </div>` : ''}
       ${itemPick === it.id ? `<div class="picker"><div class="pickhead">Symbol für diesen Punkt</div>
         <div class="iconrow">${ITEM_ICONS.map(ic => `<button class="ipick big ${ic === it.icon ? 'on' : ''}" data-act="setItemIcon" data-i="${it.id}" data-icon="${ic}" aria-label="Symbol ${ic}">${I[ic]}</button>`).join('')}</div>
+        <label class="emorow"><span>Eigenes Emoji</span><input class="emoinput" data-emo="item" data-i="${it.id}" value="${isEmo(it.icon) ? esc(it.icon) : ''}" placeholder="🙂" aria-label="Eigenes Emoji als Symbol" autocomplete="off"></label>
         <div style="display:flex;justify-content:space-between"><button class="textbtn" data-act="setItemIcon" data-i="${it.id}" data-icon="">Kein Symbol</button><button class="textbtn strong" data-act="pickItemIcon" data-i="${it.id}">Fertig</button></div>
       </div>` : ''}</li>`).join('')}
     </ul>
@@ -699,6 +704,7 @@ function vLists() {
       ${iconPick === l.id ? `<div class="picker">
         <div class="pickhead">Symbol</div>
         <div class="iconrow">${ICONS.map(ic => `<button class="iconpick ${ic === l.icon ? 'on' : ''}" data-act="setIcon" data-l="${l.id}" data-icon="${ic}" aria-label="Symbol ${ic}">${listIcon(ic, l.color)}</button>`).join('')}</div>
+        <label class="emorow"><span>Eigenes Emoji</span><input class="emoinput" data-emo="list" data-l="${l.id}" value="${isEmo(l.icon) ? esc(l.icon) : ''}" placeholder="🙂" aria-label="Eigenes Emoji als Symbol" autocomplete="off"></label>
         <div class="pickhead">Farbe</div>
         <div class="iconrow">${Object.keys(FARBEN).map(c => `<button class="swatch ${c === l.color ? 'on' : ''}" data-act="setColor" data-l="${l.id}" data-color="${c}" aria-label="Farbe ${c}" style="background:${FARBEN[c][1]};border-color:${FARBEN[c][1]}"><span style="background:#fff"></span></button>`).join('')}</div>
         <button class="textbtn strong" data-act="pickIcon" data-l="${l.id}" style="align-self:flex-end">Fertig</button>
@@ -775,7 +781,15 @@ function route() {
 }
 let lastRouteKey = '';
 function autosize(root = document) { root.querySelectorAll('textarea[data-act]').forEach(t => { t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; }); }
-document.addEventListener('input', e => { if (e.target.matches('textarea[data-act]')) { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; } });
+document.addEventListener('input', e => {
+  if (e.target.matches('input[data-emo]')) {
+    const v = firstEmo(e.target.value); if (!v) return;
+    const r = route();
+    if (e.target.dataset.emo === 'list') commit({ t: 'setIcon', l: e.target.dataset.l, icon: v });
+    else { const f = findItem(view.lists[r.id], e.target.dataset.i); if (f) { itemPick = null; commit({ t: 'editItem', l: r.id, i: f.item.id, patch: { icon: v } }); } }
+    return;
+  }
+  if (e.target.matches('textarea[data-act]')) { e.target.style.height = 'auto'; e.target.style.height = e.target.scrollHeight + 'px'; } });
 function applyTheme(r) {
   const st = document.documentElement.style, m = r.id && meta(r.id);
   const keys = ['--accent', '--accent-dark', '--accent-soft', '--bg', '--sel'];
@@ -1050,7 +1064,7 @@ document.addEventListener('pointercancel', endDrag);
 
 /* ---------- Start ---------- */
 /* Neue Version der Seite erkennen und laden (iPhone hält sonst die alte im Speicher) */
-const APP_VERSION = 37;
+const APP_VERSION = 38;
 async function checkUpdate() {
   try {
     const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
