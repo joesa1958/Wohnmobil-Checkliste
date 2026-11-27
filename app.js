@@ -592,8 +592,10 @@ function vRun(id) {
   }).join('');
   return `<div class="screen"><div class="run">${head(`<span class="count" style="padding:0 6px">${st.pos} / ${st.total}</span>`)}
     ${progress}
+    <div class="secwrap">
+        ${multiSec ? `<button class="secpill sechead" data-act="secPick">${esc(cs || m.name)} · ${posInSec}/${inSec.length} <span aria-hidden="true">▾</span></button>` : `<div class="secpill sectitle" style="pointer-events:none">${esc(m.name)}</div>`}
+    </div>
     <div class="current wheelwrap">
-      ${multiSec ? `<button class="secpill" data-act="secPick">${esc(cs || m.name)} · ${posInSec}/${inSec.length} <span aria-hidden="true">▾</span></button>` : `<div class="secpill" style="pointer-events:none">${esc(m.name)}</div>`}
       <div class="wheel${shift ? ' roll' : ''}" style="--from:${shift * 46}px">${slots}</div>
     </div>
     <button class="done-btn" data-act="runDone" data-i="${cur.it.id}">${I.tick(22, '#fff', 2)} Erledigt</button>
@@ -1076,7 +1078,7 @@ document.addEventListener('pointercancel', endDrag);
 
 /* ---------- Start ---------- */
 /* Neue Version der Seite erkennen und laden (iPhone hält sonst die alte im Speicher) */
-const APP_VERSION = 40;
+const APP_VERSION = 41;
 async function checkUpdate() {
   try {
     const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
