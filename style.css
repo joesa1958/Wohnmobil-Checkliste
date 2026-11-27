@@ -212,3 +212,26 @@ li.placeholder { background: var(--sel); border-top: 1px solid var(--line2); }
 .ipick .emo { font-size: 20px; }
 .emorow { display: flex; align-items: center; gap: 10px; font-size: 15px; color: var(--muted); }
 .emoinput { width: 64px; min-height: 44px; font-size: 26px; text-align: center; border: 1.5px dashed var(--line); border-radius: 12px; background: var(--card); }
+
+/* Walze im Check (wie in der Urlaubspackliste) */
+.wheelwrap { align-items: center; gap: 10px; overflow: hidden; }
+.secpill { border: 0; background: var(--accent-soft); color: var(--accent-dark); font-size: 15px; font-weight: 600; padding: 7px 16px; border-radius: 18px; }
+.wheel { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.wheel.roll { animation: wroll .24s cubic-bezier(.2,.8,.3,1); }
+@keyframes wroll { from { transform: translateY(var(--from)); opacity: .6; } to { transform: none; opacity: 1; } }
+.wslot { border: 0; background: none; padding: 0 8px; max-width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font: inherit; text-align: center; }
+.wslot .wtext { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wm2, .wp2 { height: 38px; font-size: 17px; color: color-mix(in srgb, var(--faint) 65%, var(--bg)); }
+.wm1, .wp1 { height: 46px; font-size: 22px; font-weight: 500; color: color-mix(in srgb, var(--muted) 75%, var(--bg)); }
+.w0 { width: calc(100% - 8px); box-sizing: border-box; min-height: 120px; margin: 8px 0; padding: 18px 14px; flex-direction: column; gap: 10px; color: var(--ink); background: var(--card); border-radius: 22px; box-shadow: 0 2px 12px rgba(60,40,20,.12); }
+.w0 .wtext { white-space: normal; font-size: 34px; line-height: 1.15; font-weight: 700; letter-spacing: -0.02em; overflow-wrap: anywhere; }
+.wicon { width: 56px; height: 56px; border-radius: 16px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; }
+.wicon svg { width: 32px; height: 32px; }
+.wslot.isdone .wtext { text-decoration: line-through; }
+.wtick { color: var(--accent); display: inline-flex; }
+.wnote { text-align: center; font-size: 17px; }
+.wslot.w0 .wresp { display: flex; justify-content: center; font-size: 15px; }
+.wresp { justify-content: center; }
+.wslot.w0 .wresp { display: flex; justify-content: center; font-size: 15px; }
+.wheelwrap { touch-action: none; user-select: none; -webkit-user-select: none; }
+.wicon .emo { font-size: 34px; }

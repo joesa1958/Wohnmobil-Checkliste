@@ -518,7 +518,7 @@ function topBar(backHref, backLabel, right) {
 const listIcons = id => `<a class="iconbtn" href="#/liste/${id}/auswahl" aria-label="Auswahl: was heute geprüft wird">${I.select}</a><a class="iconbtn" href="#/liste/${id}/bearbeiten" aria-label="Liste bearbeiten">${I.edit}</a>`;
 
 /* Abschnitte als antippbare Liste (Sprung an den Anfang des Abschnitts) */
-let secPick = null, introView = null;
+let secPick = null, introView = null; const wheelPos = {};
 function secListHtml(st, secNames, secOf, showDone) {
   return `<div class="seclist">${secNames.map((n, i) => {
     const xs = st.seq.filter(x => secOf(x) === n), d = xs.filter(x => st.done.has(x)).length;
@@ -579,22 +579,28 @@ function vRun(id) {
   const cur = st.byId[st.cur];
   const cs = secOf(st.cur), si = secNames.indexOf(cs);
   const inSec = st.seq.filter(x => secOf(x) === cs), posInSec = inSec.indexOf(st.cur) + 1;
-  const next = st.upcoming.map(x => `<div>${esc(st.byId[x].it.text)}${secOf(x) !== cs ? ` <span class="nextsec">· ${esc(secOf(x))}</span>` : ''}</div>`).join('');
+  const ci = st.seq.indexOf(st.cur);
+  const prevPos = wheelPos[id]; wheelPos[id] = ci;
+  const shift = prevPos == null ? 0 : Math.max(-2, Math.min(2, ci - prevPos));
+  const cls = { '-2': 'wm2', '-1': 'wm1', '0': 'w0', '1': 'wp1', '2': 'wp2' };
+  const slots = [-2, -1, 0, 1, 2].map(o => {
+    const x = st.seq[ci + o];
+    if (!x) return `<div class="wslot ${cls[o]}" aria-hidden="true"></div>`;
+    const b = st.byId[x], d = st.done.has(x), ic = b.it.icon && ico(b.it.icon);
+    if (o === 0) return `<div class="wslot w0">${ic ? `<span class="wicon" aria-hidden="true">${ic}</span>` : ''}<span class="wtext">${esc(b.it.text)}</span>${b.it.note ? `<span class="explain wnote">${esc(b.it.note)}</span>` : ''}${b.it.resp ? `<span class="resp wresp">Zuständig: ${chip(b.it.resp)}</span>` : ''}</div>`;
+    return `<button class="wslot ${cls[o]} ${d ? 'isdone' : ''}" data-act="wheelJump" data-i="${x}" aria-label="${esc(b.it.text)}${d ? ' (erledigt)' : ''}">${d ? `<span class="wtick">${I.tick(16, 'currentColor', 2.4)}</span>` : ''}<span class="wtext">${esc(b.it.text)}</span></button>`;
+  }).join('');
   return `<div class="screen"><div class="run">${head(`<span class="count" style="padding:0 6px">${st.pos} / ${st.total}</span>`)}
     ${progress}
-    <div class="current">
-      <div class="sec">${multiSec ? `<button class="secbtn" data-act="secPick">${esc(cs || m.name)}${secNames.length > 1 ? ` · Abschnitt ${si + 1} von ${secNames.length}` : ''} · ${posInSec}/${inSec.length} <span aria-hidden="true">▾</span></button>` : esc(m.name)}</div>
-      ${cur.it.icon && ico(cur.it.icon) ? `<div class="bigicon" aria-hidden="true">${ico(cur.it.icon)}</div>` : ''}
-      <div class="big">${esc(cur.it.text)}</div>
-      ${cur.it.note ? `<div class="explain">${esc(cur.it.note)}</div>` : ''}
-      ${cur.it.resp ? `<div class="resp">Zuständig: ${chip(cur.it.resp)}</div>` : ''}
+    <div class="current wheelwrap">
+      ${multiSec ? `<button class="secpill" data-act="secPick">${esc(cs || m.name)} · ${posInSec}/${inSec.length} <span aria-hidden="true">▾</span></button>` : `<div class="secpill" style="pointer-events:none">${esc(m.name)}</div>`}
+      <div class="wheel${shift ? ' roll' : ''}" style="--from:${shift * 46}px">${slots}</div>
     </div>
     <button class="done-btn" data-act="runDone" data-i="${cur.it.id}">${I.tick(22, '#fff', 2)} Erledigt</button>
     <div class="runlinks">
       <button class="later" data-act="runBack" ${st.rest.length > 1 ? '' : 'disabled style="opacity:.4"'}>${I.back} Zurück</button>
-      <button class="later" data-act="runLater" data-i="${cur.it.id}" ${st.rest.length > 1 ? '' : 'disabled style="opacity:.4"'}>Später ›</button>
+      <button class="later" data-act="runLater" data-i="${cur.it.id}" ${st.rest.length > 1 ? '' : 'disabled style="opacity:.4"'}>Weiter ›</button>
       <button class="later" data-act="introOpen">Anfang</button></div>
-    ${next ? `<div class="next"><div style="font-size:13px">Danach</div>${next}</div>` : `<div class="next"><div style="font-size:13px">Letzter Punkt der Liste</div></div>`}
   </div></div>`;
 }
 
@@ -834,6 +840,12 @@ document.addEventListener('click', e => {
       if (!st2.rest.length) commit({ t: 'lastDone', l: id, date: new Date().toISOString() }); else render();
       break;
     }
+    case 'wheelJump': {
+      const run = runs[id] || (runs[id] = { done: [], started: true });
+      const x = el.dataset.i, k = run.done.indexOf(x);
+      if (k >= 0) { run.done.splice(k, 1); toast('Wieder offen'); }
+      run.cursor = x; saveRuns(); render(); break;
+    }
     case 'runLater': {
       const run = runs[id] || (runs[id] = { done: [], started: true });
       const st = runState(id); run.cursor = st.nextOpen(st.seq.indexOf(el.dataset.i), false); saveRuns(); render(); break;
@@ -1064,7 +1076,7 @@ document.addEventListener('pointercancel', endDrag);
 
 /* ---------- Start ---------- */
 /* Neue Version der Seite erkennen und laden (iPhone hält sonst die alte im Speicher) */
-const APP_VERSION = 39;
+const APP_VERSION = 40;
 async function checkUpdate() {
   try {
     const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
@@ -1097,3 +1109,49 @@ window.addEventListener('hashchange', render);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { sync(); checkUpdate(); } });
 window.addEventListener('online', () => sync());
 boot();
+
+/* Walze: hoch- und runterwischen blättert wie Zurück/Weiter, ohne etwas abzuhaken.
+   Die Walze folgt dem Finger, rastet Punkt für Punkt ein und läuft nach schnellem Wischen etwas nach. */
+const W_STEP = 58;
+let wDrag = null, wSwallow = false, wCoast = null;
+const wStep = dir => {
+  const id = route().id, st = id && view.lists[id] ? runState(id) : null; if (!st || !st.cur) return false;
+  const ci = st.seq.indexOf(st.cur), ahead = dir > 0 ? st.seq.slice(ci + 1) : st.seq.slice(0, ci);
+  if (!ahead.some(x => !st.done.has(x))) return false; // beim Wischen nicht über das Listenende hinaus
+  const b = document.querySelector(`[data-act="${dir > 0 ? 'runLater' : 'runBack'}"]`); if (!b || b.disabled) return false; b.click(); return true; };
+const wEl = () => document.querySelector('.wheelwrap .wheel');
+const wSet = (off, anim) => { const el = wEl(); if (!el) return; el.style.animation = 'none'; el.style.transition = anim ? 'transform .22s cubic-bezier(.2,.8,.3,1)' : 'none'; el.style.transform = off ? `translateY(${off}px)` : ''; };
+function wMove(e) {
+  const d = wDrag; if (!d) return;
+  const y = e.touches[0].clientY, t = e.timeStamp;
+  d.vy = (y - d.ly) / Math.max(1, t - d.lt); d.ly = y; d.lt = t;
+  const dy = y - d.y; if (Math.abs(dy) > 6) d.moved = true;
+  if (!d.moved) return;
+  e.preventDefault();
+  let off = dy - d.used;
+  while (off <= -W_STEP / 2 && wStep(1)) { d.used -= W_STEP; off += W_STEP; }
+  while (off >= W_STEP / 2 && wStep(-1)) { d.used += W_STEP; off -= W_STEP; }
+  wSet(Math.max(-W_STEP, Math.min(W_STEP, off)) * 0.9, false);
+}
+function wEnd() {
+  const d = wDrag; if (!d) return; wDrag = null;
+  d.t.removeEventListener('touchmove', wMove); d.t.removeEventListener('touchend', wEnd); d.t.removeEventListener('touchcancel', wEnd);
+  if (!d.moved) return;
+  wSwallow = true; setTimeout(() => { wSwallow = false; }, 450);
+  wSet(0, true);
+  const v = d.vy; // Pixel pro Millisekunde, negativ = nach oben
+  let extra = Math.abs(v) > 0.45 ? Math.min(12, Math.round((Math.abs(v) - 0.3) * 6)) : 0;
+  if (!extra) return;
+  const dir = v < 0 ? 1 : -1; let gap = 55;
+  const tick = () => { if (!extra-- || !wStep(dir)) { wCoast = null; return; } gap *= 1.18; wCoast = setTimeout(tick, gap); };
+  wCoast = setTimeout(tick, 40);
+}
+document.addEventListener('touchstart', e => {
+  const w = e.target.closest && e.target.closest('.wheelwrap'); if (!w || e.touches.length !== 1) return;
+  if (wCoast) { clearTimeout(wCoast); wCoast = null; }
+  const t = e.target, y = e.touches[0].clientY;
+  wDrag = { t, y, ly: y, lt: e.timeStamp, vy: 0, used: 0, moved: false };
+  t.addEventListener('touchmove', wMove, { passive: false }); // am Ziel selbst: es kann beim Neuzeichnen aus der Seite fallen
+  t.addEventListener('touchend', wEnd); t.addEventListener('touchcancel', wEnd);
+}, { passive: true });
+document.addEventListener('click', e => { if (wSwallow && e.target.closest && e.target.closest('.wheelwrap')) { e.stopPropagation(); e.preventDefault(); } }, true);
