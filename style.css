@@ -274,3 +274,10 @@ button.callink { font: inherit; font-size: 15px; font-weight: 600; cursor: point
 
 /* Zurück/Weiter ausgeblendet: Blättern per Wischen (die Knöpfe bleiben unsichtbar für das Wischen erhalten) */
 .later.navhidden { display: none; }
+
+/* Erledigte Termine */
+.duebadge.done, .wdue.done { color: var(--muted); }
+.tdue { gap: 12px; }
+.tdue.isdone .tline { text-decoration: line-through; color: var(--muted); }
+.tduecheck { flex: none; width: 28px; height: 28px; border-radius: 14px; border: 2px solid var(--line); background: var(--card); display: grid; place-items: center; padding: 0; }
+.tduecheck.on { background: var(--accent); border-color: var(--accent); }

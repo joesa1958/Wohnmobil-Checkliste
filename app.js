@@ -589,7 +589,7 @@ function vRun(id) {
     const x = st.seq[ci + o];
     if (!x) return `<div class="wslot ${cls[o]}" aria-hidden="true"></div>`;
     const b = st.byId[x], d = st.done.has(x), ic = b.it.icon && ico(b.it.icon);
-    if (o === 0) return `<div class="wslot w0">${ic ? `<span class="wicon" aria-hidden="true">${ic}</span>` : ''}<span class="wtext">${esc(b.it.text)}</span>${b.it.note ? `<span class="explain wnote" data-act="noteToggle" role="button" aria-label="Erklärung ganz anzeigen">${esc(b.it.note)}</span>${b.it.note.length > 110 || b.it.note.split('\n').length > 3 ? `<button class="textbtn notemore" data-act="noteToggle">ganz anzeigen</button>` : ''}` : ''}${b.it.resp ? `<span class="resp wresp">Zuständig: ${chip(b.it.resp)}</span>` : ''}${b.it.due ? `${dueBadge(b.it.due, 'wdue')}${calLink(b.it, m.name)}` : ''}</div>`;
+    if (o === 0) return `<div class="wslot w0">${ic ? `<span class="wicon" aria-hidden="true">${ic}</span>` : ''}<span class="wtext">${esc(b.it.text)}</span>${b.it.note ? `<span class="explain wnote" data-act="noteToggle" role="button" aria-label="Erklärung ganz anzeigen">${esc(b.it.note)}</span>${b.it.note.length > 110 || b.it.note.split('\n').length > 3 ? `<button class="textbtn notemore" data-act="noteToggle">ganz anzeigen</button>` : ''}` : ''}${b.it.resp ? `<span class="resp wresp">Zuständig: ${chip(b.it.resp)}</span>` : ''}${b.it.due ? `${dueBadge(b.it.due, 'wdue', b.it.dueDone)}${b.it.dueDone ? '' : calLink(b.it, m.name)}` : ''}</div>`;
     return `<button class="wslot ${cls[o]} ${d ? 'isdone' : ''}" data-act="wheelJump" data-i="${x}" aria-label="${esc(b.it.text)}${d ? ' (erledigt)' : ''}">${d ? `<span class="wtick">${I.tick(16, 'currentColor', 2.4)}</span>` : ''}<span class="wtext">${esc(b.it.text)}</span></button>`;
   }).join('');
   return `<div class="screen"><div class="run">${head(`<span class="count" style="padding:0 6px">${st.pos} / ${st.total}</span>`)}
@@ -617,7 +617,7 @@ function dueInfo(iso) {
   const rel = days === 0 ? 'heute' : days === 1 ? 'morgen' : days > 1 ? `in ${days} Tagen` : days === -1 ? 'seit gestern' : `seit ${-days} Tagen`;
   return { text: `${DUE_WT[dt.getDay()]} ${d}. ${MONTHS[mo - 1]}`, rel, cls: days < 0 ? 'over' : days <= 3 ? 'soon' : '' };
 }
-const dueBadge = (iso, cls = 'duebadge') => { const x = dueInfo(iso); return x ? `<span class="${cls} ${x.cls}">${I.cal || ''}${cls === 'wdue' ? 'Termin: ' : ''}${x.text} · ${x.rel}</span>` : ''; };
+const dueBadge = (iso, cls = 'duebadge', done) => { const x = dueInfo(iso); if (x && done) return `<span class="${cls} done">${I.cal || ''}${cls === 'wdue' ? 'Termin: ' : ''}${x.text} · erledigt</span>`; return x ? `<span class="${cls} ${x.cls}">${I.cal || ''}${cls === 'wdue' ? 'Termin: ' : ''}${x.text} · ${x.rel}</span>` : ''; };
 function icsHref(it, listName) {
   const e = v => String(v || '').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/([,;])/g, '\\$1');
   const [y, mo, d] = it.due.split('-').map(Number), nx = new Date(y, mo - 1, d + 1), p2 = n => String(n).padStart(2, '0');
@@ -686,7 +686,7 @@ function vEdit(id) {
         <button class="minus" data-act="delItem" data-i="${it.id}" aria-label="Punkt löschen"><span></span></button>
         <button class="ipick ${it.icon ? '' : 'none'}" data-act="pickItemIcon" data-i="${it.id}" aria-label="Symbol für diesen Punkt">${ico(it.icon) || '+'}</button>
         <div class="etext"><textarea rows="1" data-act="itemText" data-i="${it.id}" aria-label="Punkt umbenennen" enterkeyhint="done">${esc(it.text)}</textarea>
-          <textarea rows="1" class="note" data-act="itemNote" data-i="${it.id}" aria-label="Erklärung zu „${esc(it.text)}“" placeholder="Erklärung …">${esc(it.note || '')}</textarea>${it.due ? dueBadge(it.due) : ''}</div>
+          <textarea rows="1" class="note" data-act="itemNote" data-i="${it.id}" aria-label="Erklärung zu „${esc(it.text)}“" placeholder="Erklärung …">${esc(it.note || '')}</textarea>${it.due ? dueBadge(it.due, 'duebadge', it.dueDone) : ''}</div>
         <button class="chip ${it.resp || 'none'}" data-act="cycleResp" data-i="${it.id}" aria-label="Zuständig: ${it.resp ? PEOPLE[it.resp] : 'niemand'} – antippen zum Ändern">${it.resp ? PEOPLE[it.resp] : 'Zuständig?'}</button>
         <button class="more" data-act="itemMenu" data-i="${it.id}" aria-label="Punkt kopieren, verschieben oder Termin setzen${it.due ? ' (hat Termin)' : ''}">${I.copy}<span class="tmark ${it.due ? 'on' : ''}" aria-hidden="true">T</span></button>
         <span class="handle" data-drag="${it.id}" aria-hidden="true">${I.handle}</span>
@@ -876,6 +876,7 @@ document.addEventListener('click', e => {
       const run = runs[id] || (runs[id] = { done: [], started: true });
       const st = runState(id), ci = st.seq.indexOf(el.dataset.i);
       if (!run.done.includes(el.dataset.i)) run.done.push(el.dataset.i);
+      { const f = findItem(view.lists[id], el.dataset.i); if (f && f.item.due && !f.item.dueDone) commit({ t: 'editItem', l: id, i: f.item.id, patch: { dueDone: true } }); }
       const st2 = runState(id); run.cursor = st2.rest.length ? st2.nextOpen(ci, false) : null; saveRuns();
       if (navigator.vibrate) navigator.vibrate(15);
       if (!st2.rest.length) commit({ t: 'lastDone', l: id, date: new Date().toISOString() }); else render();
@@ -897,6 +898,7 @@ document.addEventListener('click', e => {
       document.body.appendChild(ov); break;
     }
     case 'calAdd': case 'calShare': { const r = route(), f = findItem(view.lists[r.id], el.dataset.i); if (f) calAdd(f.item, meta(r.id).name, act === 'calShare'); break; }
+    case 'dueDone': { const r = route(), f = findItem(view.lists[r.id], el.dataset.i); if (f) commit({ t: 'editItem', l: r.id, i: f.item.id, patch: { dueDone: !f.item.dueDone } }); break; }
     case 'clearDue': { const f = findItem(view.lists[id], el.dataset.i); if (f) commit({ t: 'editItem', l: id, i: f.item.id, patch: { due: '' } }); break; }
     case 'runLater': {
       const run = runs[id] || (runs[id] = { done: [], started: true });
@@ -1133,7 +1135,7 @@ document.addEventListener('pointercancel', endDrag);
 
 /* ---------- Start ---------- */
 /* Neue Version der Seite erkennen und laden (iPhone hält sonst die alte im Speicher) */
-const APP_VERSION = 49;
+const APP_VERSION = 50;
 async function checkUpdate() {
   try {
     const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
