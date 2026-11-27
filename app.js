@@ -676,7 +676,7 @@ function vEdit(id) {
         <div class="etext"><textarea rows="1" data-act="itemText" data-i="${it.id}" aria-label="Punkt umbenennen" enterkeyhint="done">${esc(it.text)}</textarea>
           <textarea rows="1" class="note" data-act="itemNote" data-i="${it.id}" aria-label="Erklärung zu „${esc(it.text)}“" placeholder="Erklärung …">${esc(it.note || '')}</textarea>${it.due ? dueBadge(it.due) : ''}</div>
         <button class="chip ${it.resp || 'none'}" data-act="cycleResp" data-i="${it.id}" aria-label="Zuständig: ${it.resp ? PEOPLE[it.resp] : 'niemand'} – antippen zum Ändern">${it.resp ? PEOPLE[it.resp] : 'Zuständig?'}</button>
-        <button class="more" data-act="itemMenu" data-i="${it.id}" aria-label="Punkt kopieren oder duplizieren">${I.copy}</button>
+        <button class="more" data-act="itemMenu" data-i="${it.id}" aria-label="Punkt kopieren, verschieben oder Termin setzen${it.due ? ' (hat Termin)' : ''}">${I.copy}<span class="tmark ${it.due ? 'on' : ''}" aria-hidden="true">T</span></button>
         <span class="handle" data-drag="${it.id}" aria-hidden="true">${I.handle}</span>
       </div>
       ${itemMenu === it.id ? `<div class="picker">
@@ -1111,7 +1111,7 @@ document.addEventListener('pointercancel', endDrag);
 
 /* ---------- Start ---------- */
 /* Neue Version der Seite erkennen und laden (iPhone hält sonst die alte im Speicher) */
-const APP_VERSION = 42;
+const APP_VERSION = 43;
 async function checkUpdate() {
   try {
     const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
