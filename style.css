@@ -239,3 +239,13 @@ li.placeholder { background: var(--sel); border-top: 1px solid var(--line2); }
 /* Abschnittstitel über der Walze, nicht Teil davon */
 .secwrap { display: flex; justify-content: center; margin: 22px 0 4px; }
 .secpill.sechead { font-size: 19px; font-weight: 700; padding: 10px 22px; border-radius: 22px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Termine an Punkten */
+.duebadge, .wdue { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 600; color: var(--accent-dark); }
+.duebadge svg, .wdue svg, .callink svg { flex: none; }
+.duebadge.soon, .wdue.soon { color: #C2410C; }
+.duebadge.over, .wdue.over { color: #B91C1C; }
+.wdue { font-size: 15px; justify-content: center; }
+.callink { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 0 14px; border: 1.5px solid var(--accent); border-radius: 20px; color: var(--accent); font-size: 15px; font-weight: 600; text-decoration: none; background: var(--card); }
+.duerow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.duerow input { font: inherit; font-size: 16px; min-height: 40px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--ink); }

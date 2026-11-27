@@ -25,6 +25,7 @@ const fmtTime = ts => new Date(ts).toLocaleTimeString('de-DE', { hour: '2-digit'
 
 /* ---------- Icons ---------- */
 const I = {
+  cal: '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 10h17M8 3v4M16 3v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
   gift: '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="8.5" width="17" height="4" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 12.5V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7.5M12 8.5V21M12 8.5c-1-2.8-2.6-4.5-4.3-4.5A1.9 1.9 0 0 0 7.7 8C9 8.5 10.6 8.5 12 8.5zM12 8.5c1-2.8 2.6-4.5 4.3-4.5a1.9 1.9 0 0 1 0 4c-1.3.5-2.9.5-4.3.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   back: '<svg width="12" height="20" viewBox="0 0 12 20" aria-hidden="true"><path d="M10 2 2 10l8 8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   refresh: '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -587,7 +588,7 @@ function vRun(id) {
     const x = st.seq[ci + o];
     if (!x) return `<div class="wslot ${cls[o]}" aria-hidden="true"></div>`;
     const b = st.byId[x], d = st.done.has(x), ic = b.it.icon && ico(b.it.icon);
-    if (o === 0) return `<div class="wslot w0">${ic ? `<span class="wicon" aria-hidden="true">${ic}</span>` : ''}<span class="wtext">${esc(b.it.text)}</span>${b.it.note ? `<span class="explain wnote">${esc(b.it.note)}</span>` : ''}${b.it.resp ? `<span class="resp wresp">Zuständig: ${chip(b.it.resp)}</span>` : ''}</div>`;
+    if (o === 0) return `<div class="wslot w0">${ic ? `<span class="wicon" aria-hidden="true">${ic}</span>` : ''}<span class="wtext">${esc(b.it.text)}</span>${b.it.note ? `<span class="explain wnote">${esc(b.it.note)}</span>` : ''}${b.it.resp ? `<span class="resp wresp">Zuständig: ${chip(b.it.resp)}</span>` : ''}${b.it.due ? `${dueBadge(b.it.due, 'wdue')}${calLink(b.it, m.name)}` : ''}</div>`;
     return `<button class="wslot ${cls[o]} ${d ? 'isdone' : ''}" data-act="wheelJump" data-i="${x}" aria-label="${esc(b.it.text)}${d ? ' (erledigt)' : ''}">${d ? `<span class="wtick">${I.tick(16, 'currentColor', 2.4)}</span>` : ''}<span class="wtext">${esc(b.it.text)}</span></button>`;
   }).join('');
   return `<div class="screen"><div class="run">${head(`<span class="count" style="padding:0 6px">${st.pos} / ${st.total}</span>`)}
@@ -605,6 +606,29 @@ function vRun(id) {
       <button class="later" data-act="introOpen">Anfang</button></div>
   </div></div>`;
 }
+
+/* Termin an einem Punkt: Anzeige und Kalendereintrag (.ics) mit Erinnerung am Vortag um 9 Uhr */
+const DUE_WT = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.'];
+function dueInfo(iso) {
+  if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return null;
+  const [y, mo, d] = iso.split('-').map(Number), dt = new Date(y, mo - 1, d), now = new Date();
+  const days = Math.round((dt - new Date(now.getFullYear(), now.getMonth(), now.getDate())) / 864e5);
+  const rel = days === 0 ? 'heute' : days === 1 ? 'morgen' : days > 1 ? `in ${days} Tagen` : days === -1 ? 'seit gestern' : `seit ${-days} Tagen`;
+  return { text: `${DUE_WT[dt.getDay()]} ${d}. ${MONTHS[mo - 1]}`, rel, cls: days < 0 ? 'over' : days <= 3 ? 'soon' : '' };
+}
+const dueBadge = (iso, cls = 'duebadge') => { const x = dueInfo(iso); return x ? `<span class="${cls} ${x.cls}">${I.cal || ''}${cls === 'wdue' ? 'Termin: ' : ''}${x.text} · ${x.rel}</span>` : ''; };
+function icsHref(it, listName) {
+  const e = v => String(v || '').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/([,;])/g, '\\$1');
+  const [y, mo, d] = it.due.split('-').map(Number), nx = new Date(y, mo - 1, d + 1), p2 = n => String(n).padStart(2, '0');
+  const now = new Date(), stamp = `${now.getUTCFullYear()}${p2(now.getUTCMonth() + 1)}${p2(now.getUTCDate())}T${p2(now.getUTCHours())}${p2(now.getUTCMinutes())}00Z`;
+  const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//joesa1958//Listen//DE', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'BEGIN:VEVENT',
+    `UID:${it.id}-${it.due}@joesa1958.github.io`, `DTSTAMP:${stamp}`, `DTSTART;VALUE=DATE:${it.due.replace(/-/g, '')}`,
+    `DTEND;VALUE=DATE:${nx.getFullYear()}${p2(nx.getMonth() + 1)}${p2(nx.getDate())}`, `SUMMARY:${e(it.text)}`,
+    `DESCRIPTION:${e(listName + (it.note ? '\n' + it.note : ''))}`, 'TRANSP:TRANSPARENT',
+    'BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${e(it.text)}`, 'TRIGGER:-PT15H', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+  return 'data:text/calendar;charset=utf-8,' + encodeURIComponent(ics);
+}
+const calLink = (it, listName) => it.due ? `<a class="callink" href="${icsHref(it, listName)}" target="_blank" rel="noopener">${I.cal || ''}In den Kalender</a>` : '';
 
 /* Seite 3: Auswahl */
 function vSelect(id) {
@@ -650,12 +674,15 @@ function vEdit(id) {
         <button class="minus" data-act="delItem" data-i="${it.id}" aria-label="Punkt löschen"><span></span></button>
         <button class="ipick ${it.icon ? '' : 'none'}" data-act="pickItemIcon" data-i="${it.id}" aria-label="Symbol für diesen Punkt">${ico(it.icon) || '+'}</button>
         <div class="etext"><textarea rows="1" data-act="itemText" data-i="${it.id}" aria-label="Punkt umbenennen" enterkeyhint="done">${esc(it.text)}</textarea>
-          <textarea rows="1" class="note" data-act="itemNote" data-i="${it.id}" aria-label="Erklärung zu „${esc(it.text)}“" placeholder="Erklärung …">${esc(it.note || '')}</textarea></div>
+          <textarea rows="1" class="note" data-act="itemNote" data-i="${it.id}" aria-label="Erklärung zu „${esc(it.text)}“" placeholder="Erklärung …">${esc(it.note || '')}</textarea>${it.due ? dueBadge(it.due) : ''}</div>
         <button class="chip ${it.resp || 'none'}" data-act="cycleResp" data-i="${it.id}" aria-label="Zuständig: ${it.resp ? PEOPLE[it.resp] : 'niemand'} – antippen zum Ändern">${it.resp ? PEOPLE[it.resp] : 'Zuständig?'}</button>
         <button class="more" data-act="itemMenu" data-i="${it.id}" aria-label="Punkt kopieren oder duplizieren">${I.copy}</button>
         <span class="handle" data-drag="${it.id}" aria-hidden="true">${I.handle}</span>
       </div>
       ${itemMenu === it.id ? `<div class="picker">
+        <div class="pickhead">Termin</div>
+        <div class="duerow"><input type="date" data-due="${it.id}" value="${esc(it.due || '')}" aria-label="Termin für „${esc(it.text)}“">${it.due ? `<button class="textbtn" data-act="clearDue" data-i="${it.id}">Termin entfernen</button>` : ''}</div>
+        ${it.due ? calLink(it, m.name) : `<p class="hint" style="margin:0">Mit einem Datum kann der Punkt in euren Kalender – mit Erinnerung am Tag vorher.</p>`}
         <button class="secondary" style="min-height:44px" data-act="dupItem" data-i="${it.id}">Hier duplizieren</button>
         <div class="pickhead">In andere Liste kopieren</div>
         <div class="copyto">${view.groups.flatMap(g => g.lists).filter(x => x !== id).map(meta).filter(Boolean).map(l => `<button data-act="copyItem" data-i="${it.id}" data-to="${l.id}">${listIcon(l.icon, l.color)}<span>${esc(l.name)}</span></button>`).join('')}</div>
@@ -848,6 +875,7 @@ document.addEventListener('click', e => {
       if (k >= 0) { run.done.splice(k, 1); toast('Wieder offen'); }
       run.cursor = x; saveRuns(); render(); break;
     }
+    case 'clearDue': { const f = findItem(view.lists[id], el.dataset.i); if (f) commit({ t: 'editItem', l: id, i: f.item.id, patch: { due: '' } }); break; }
     case 'runLater': {
       const run = runs[id] || (runs[id] = { done: [], started: true });
       const st = runState(id); run.cursor = st.nextOpen(st.seq.indexOf(el.dataset.i), false); saveRuns(); render(); break;
@@ -1021,6 +1049,11 @@ document.addEventListener('submit', async e => {
   }
 });
 document.addEventListener('change', async e => {
+  if (e.target.matches('input[data-due]')) {
+    const r = route(), f = findItem(view.lists[r.id], e.target.dataset.due), v = e.target.value || '';
+    if (f && v !== (f.item.due || '')) commit({ t: 'editItem', l: r.id, i: f.item.id, patch: { due: v } });
+    return;
+  }
   if (e.target.id !== 'importfile') return;
   const file = e.target.files[0]; if (!file) return;
   try {
@@ -1078,7 +1111,7 @@ document.addEventListener('pointercancel', endDrag);
 
 /* ---------- Start ---------- */
 /* Neue Version der Seite erkennen und laden (iPhone hält sonst die alte im Speicher) */
-const APP_VERSION = 41;
+const APP_VERSION = 42;
 async function checkUpdate() {
   try {
     const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
