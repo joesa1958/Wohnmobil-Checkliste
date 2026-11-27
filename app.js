@@ -25,6 +25,7 @@ const fmtTime = ts => new Date(ts).toLocaleTimeString('de-DE', { hour: '2-digit'
 
 /* ---------- Icons ---------- */
 const I = {
+  money: '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M14.9 9.6A3.3 3.3 0 1 0 14.9 14.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M8.4 11.3h4.4M8.4 12.9h4.4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
   cal: '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 10h17M8 3v4M16 3v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
   gift: '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="8.5" width="17" height="4" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 12.5V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7.5M12 8.5V21M12 8.5c-1-2.8-2.6-4.5-4.3-4.5A1.9 1.9 0 0 0 7.7 8C9 8.5 10.6 8.5 12 8.5zM12 8.5c1-2.8 2.6-4.5 4.3-4.5a1.9 1.9 0 0 1 0 4c-1.3.5-2.9.5-4.3.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   back: '<svg width="12" height="20" viewBox="0 0 12 20" aria-hidden="true"><path d="M10 2 2 10l8 8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -149,8 +150,8 @@ const FARBEN = { // [Seitenhintergrund, Farbe, dunkel] – deutlich unterscheidb
   blau: ['#E1ECFB', '#1F6FD1', '#134E99'], violett: ['#ECE8FD', '#6B52D6', '#4A35A8'], rosa: ['#FCE5EE', '#D23F7E', '#9C2A5C'],
   rot: ['#FCE4E1', '#D63A2F', '#9E2419'], rotbraun: ['#FDEBDB', '#E07415', '#A65208'], gelb: ['#FBF1CF', '#C29200', '#8A6700']
 };
-const ICONS = ['van', 'gift', 'go', 'tent', 'home', 'bag', 'cart', 'bike', 'snow', 'sun', 'drop', 'flame', 'bolt', 'wrench', 'key', 'medic', 'paw', 'flag', 'list'];
-const ITEM_ICONS = ['gift', 'bike', 'awning', 'window', 'door', 'cabinet', 'lock', 'toilet', 'fan', 'wedge', 'fuel', 'oil', 'canister', 'wiper', 'windshield', 'heater', 'shower', 'gasbottle', 'waste', 'gauge', 'nav', 'bikini', 'rainshirt', 'plant', 'shield', 'tap', 'bottle', 'roll', 'doc', 'map', 'box', 'bowl', 'leash', 'blanket', 'bed', 'shoe', 'shirt', 'umbrella', 'pill', 'cream', 'tooth', 'scissors', 'glasses', 'towel', 'bug', 'torch', 'headphones', 'laptop', 'dice', 'binoculars', 'gem', 'coffee', 'cheese', 'jar', 'apple', 'egg', 'beer', 'wine', 'pot', 'step', 'support', 'plug', 'bolt', 'drop', 'flame', 'tire', 'light', 'fridge', 'trash', 'key', 'wrench', 'medic', 'snow', 'sun', 'paw', 'flag'];
+const ICONS = ['van', 'money', 'gift', 'go', 'tent', 'home', 'bag', 'cart', 'bike', 'snow', 'sun', 'drop', 'flame', 'bolt', 'wrench', 'key', 'medic', 'paw', 'flag', 'list'];
+const ITEM_ICONS = ['gift', 'money', 'bike', 'awning', 'window', 'door', 'cabinet', 'lock', 'toilet', 'fan', 'wedge', 'fuel', 'oil', 'canister', 'wiper', 'windshield', 'heater', 'shower', 'gasbottle', 'waste', 'gauge', 'nav', 'bikini', 'rainshirt', 'plant', 'shield', 'tap', 'bottle', 'roll', 'doc', 'map', 'box', 'bowl', 'leash', 'blanket', 'bed', 'shoe', 'shirt', 'umbrella', 'pill', 'cream', 'tooth', 'scissors', 'glasses', 'towel', 'bug', 'torch', 'headphones', 'laptop', 'dice', 'binoculars', 'gem', 'coffee', 'cheese', 'jar', 'apple', 'egg', 'beer', 'wine', 'pot', 'step', 'support', 'plug', 'bolt', 'drop', 'flame', 'tire', 'light', 'fridge', 'trash', 'key', 'wrench', 'medic', 'snow', 'sun', 'paw', 'flag'];
 /* Eigene Symbole: jedes Emoji ist als Symbol erlaubt (wird wie die eingebauten gespeichert) */
 const isEmo = v => typeof v === 'string' && !!v && !I[v] && [...v].length <= 12 && /\p{Extended_Pictographic}/u.test(v);
 const ico = v => I[v] || (isEmo(v) ? `<span class="emo">${esc(v)}</span>` : '');
@@ -628,7 +629,18 @@ function icsHref(it, listName) {
     'BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${e(it.text)}`, 'TRIGGER:-PT15H', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
   return 'data:text/calendar;charset=utf-8,' + encodeURIComponent(ics);
 }
-const calLink = (it, listName) => it.due ? `<a class="callink" href="${icsHref(it, listName)}" target="_blank" rel="noopener">${I.cal || ''}In den Kalender</a>` : '';
+const calLink = (it, listName) => it.due ? `<button class="callink" data-act="calAdd" data-i="${it.id}">${I.cal || ''}In den Kalender</button>` : '';
+async function calAdd(it, listName) {
+  const ics = decodeURIComponent(icsHref(it, listName).split(',')[1]);
+  const name = (it.text.replace(/[^\wÄÖÜäöüß -]+/g, '').trim() || 'Termin') + '.ics';
+  const file = new File([ics], name, { type: 'text/calendar' });
+  // 1. Wahl: Teilen-Menü des iPhones (dort „Kalender“ bzw. Datei öffnen); sonst Datei direkt öffnen
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: it.text }); return; } catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  const url = URL.createObjectURL(file);
+  location.href = url; setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
 
 /* Seite 3: Auswahl */
 function vSelect(id) {
@@ -875,6 +887,7 @@ document.addEventListener('click', e => {
       if (k >= 0) { run.done.splice(k, 1); toast('Wieder offen'); }
       run.cursor = x; saveRuns(); render(); break;
     }
+    case 'calAdd': { const r = route(), f = findItem(view.lists[r.id], el.dataset.i); if (f) calAdd(f.item, meta(r.id).name); break; }
     case 'clearDue': { const f = findItem(view.lists[id], el.dataset.i); if (f) commit({ t: 'editItem', l: id, i: f.item.id, patch: { due: '' } }); break; }
     case 'runLater': {
       const run = runs[id] || (runs[id] = { done: [], started: true });
@@ -1111,7 +1124,7 @@ document.addEventListener('pointercancel', endDrag);
 
 /* ---------- Start ---------- */
 /* Neue Version der Seite erkennen und laden (iPhone hält sonst die alte im Speicher) */
-const APP_VERSION = 43;
+const APP_VERSION = 44;
 async function checkUpdate() {
   try {
     const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });

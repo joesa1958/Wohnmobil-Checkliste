@@ -254,3 +254,5 @@ li.placeholder { background: var(--sel); border-top: 1px solid var(--line2); }
 .more { position: relative; }
 .tmark { position: absolute; right: 2px; bottom: 4px; min-width: 15px; height: 15px; padding: 0 2px; box-sizing: border-box; border-radius: 4px; background: var(--card); border: 1.5px solid currentColor; font-size: 10px; font-weight: 800; line-height: 12px; text-align: center; }
 .tmark.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+button.callink { font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; }
