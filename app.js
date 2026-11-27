@@ -624,9 +624,9 @@ function icsHref(it, listName) {
   const now = new Date(), stamp = `${now.getUTCFullYear()}${p2(now.getUTCMonth() + 1)}${p2(now.getUTCDate())}T${p2(now.getUTCHours())}${p2(now.getUTCMinutes())}00Z`;
   const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//joesa1958//Listen//DE', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'BEGIN:VEVENT',
     `UID:${it.id}-${it.due}@joesa1958.github.io`, `DTSTAMP:${stamp}`, `DTSTART;VALUE=DATE:${it.due.replace(/-/g, '')}`,
-    `DTEND;VALUE=DATE:${nx.getFullYear()}${p2(nx.getMonth() + 1)}${p2(nx.getDate())}`, `SUMMARY:${e(it.text)}`,
-    `DESCRIPTION:${e(listName + (it.note ? '\n' + it.note : ''))}`, 'TRANSP:TRANSPARENT',
-    'BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${e(it.text)}`, 'TRIGGER:-PT15H', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+    `DTEND;VALUE=DATE:${nx.getFullYear()}${p2(nx.getMonth() + 1)}${p2(nx.getDate())}`, `SUMMARY:${e(it.text + ' - ' + listName)}`,
+    `DESCRIPTION:${e(it.note || listName)}`, 'TRANSP:TRANSPARENT',
+    'BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${e(it.text + ' - ' + listName)}`, 'TRIGGER:-PT15H', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
   return 'data:text/calendar;charset=utf-8,' + encodeURIComponent(ics);
 }
 const calLink = (it, listName) => it.due ? `<span class="calrow"><button class="callink" data-act="calAdd" data-i="${it.id}">${I.cal || ''}In den Kalender</button><button class="textbtn calshare" data-act="calShare" data-i="${it.id}">als Datei teilen</button></span>` : '';
@@ -1124,7 +1124,7 @@ document.addEventListener('pointercancel', endDrag);
 
 /* ---------- Start ---------- */
 /* Neue Version der Seite erkennen und laden (iPhone hält sonst die alte im Speicher) */
-const APP_VERSION = 45;
+const APP_VERSION = 46;
 async function checkUpdate() {
   try {
     const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
