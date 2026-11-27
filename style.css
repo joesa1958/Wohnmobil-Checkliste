@@ -271,3 +271,6 @@ button.callink { font: inherit; font-size: 15px; font-weight: 600; cursor: point
 .notecard { width: 100%; max-width: 560px; max-height: 80dvh; display: flex; flex-direction: column; background: var(--card); border-radius: 22px; padding: 16px 18px 20px; box-shadow: 0 -6px 30px rgba(0,0,0,.18); }
 .notehead { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 19px; margin-bottom: 10px; }
 .notebody { overflow-y: auto; white-space: pre-line; font-size: 18px; line-height: 1.45; color: var(--ink); user-select: text; -webkit-user-select: text; }
+
+/* Zurück/Weiter ausgeblendet: Blättern per Wischen (die Knöpfe bleiben unsichtbar für das Wischen erhalten) */
+.later.navhidden { display: none; }
