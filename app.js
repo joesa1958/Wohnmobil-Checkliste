@@ -589,7 +589,7 @@ function vRun(id) {
     const x = st.seq[ci + o];
     if (!x) return `<div class="wslot ${cls[o]}" aria-hidden="true"></div>`;
     const b = st.byId[x], d = st.done.has(x), ic = b.it.icon && ico(b.it.icon);
-    if (o === 0) return `<div class="wslot w0">${ic ? `<span class="wicon" aria-hidden="true">${ic}</span>` : ''}<span class="wtext">${esc(b.it.text)}</span>${b.it.note ? `<span class="explain wnote" data-act="noteToggle" role="button" aria-label="Erklärung ganz anzeigen">${esc(b.it.note)}</span>${b.it.note.length > 110 || b.it.note.split('\n').length > 3 ? `<button class="textbtn notemore" data-act="noteToggle">ganz anzeigen ▾</button>` : ''}` : ''}${b.it.resp ? `<span class="resp wresp">Zuständig: ${chip(b.it.resp)}</span>` : ''}${b.it.due ? `${dueBadge(b.it.due, 'wdue')}${calLink(b.it, m.name)}` : ''}</div>`;
+    if (o === 0) return `<div class="wslot w0">${ic ? `<span class="wicon" aria-hidden="true">${ic}</span>` : ''}<span class="wtext">${esc(b.it.text)}</span>${b.it.note ? `<span class="explain wnote" data-act="noteToggle" role="button" aria-label="Erklärung ganz anzeigen">${esc(b.it.note)}</span>${b.it.note.length > 110 || b.it.note.split('\n').length > 3 ? `<button class="textbtn notemore" data-act="noteToggle">ganz anzeigen</button>` : ''}` : ''}${b.it.resp ? `<span class="resp wresp">Zuständig: ${chip(b.it.resp)}</span>` : ''}${b.it.due ? `${dueBadge(b.it.due, 'wdue')}${calLink(b.it, m.name)}` : ''}</div>`;
     return `<button class="wslot ${cls[o]} ${d ? 'isdone' : ''}" data-act="wheelJump" data-i="${x}" aria-label="${esc(b.it.text)}${d ? ' (erledigt)' : ''}">${d ? `<span class="wtick">${I.tick(16, 'currentColor', 2.4)}</span>` : ''}<span class="wtext">${esc(b.it.text)}</span></button>`;
   }).join('');
   return `<div class="screen"><div class="run">${head(`<span class="count" style="padding:0 6px">${st.pos} / ${st.total}</span>`)}
@@ -887,9 +887,14 @@ document.addEventListener('click', e => {
       if (k >= 0) { run.done.splice(k, 1); toast('Wieder offen'); }
       run.cursor = x; saveRuns(); render(); break;
     }
-    case 'noteToggle': {
+    case 'noteToggle': { // ganze Erklärung in einem eigenen Fenster (Text markier- und kopierbar)
       const n = el.classList.contains('wnote') ? el : el.parentNode.querySelector('.wnote'); if (!n) break;
-      const open = n.classList.toggle('open'); const b = n.parentNode.querySelector('.notemore'); if (b) b.textContent = open ? 'weniger ▴' : 'ganz anzeigen ▾'; break;
+      const t = el.closest('.w0') && el.closest('.w0').querySelector('.wtext');
+      const ov = document.createElement('div'); ov.className = 'notesheet';
+      ov.innerHTML = `<div class="notecard" role="dialog" aria-modal="true"><div class="notehead"><b></b><button class="textbtn strong" data-close>Schließen</button></div><div class="notebody"></div></div>`;
+      ov.querySelector('b').textContent = t ? t.textContent : 'Erklärung'; ov.querySelector('.notebody').textContent = n.textContent;
+      ov.addEventListener('click', ev => { if (ev.target === ov || ev.target.closest('[data-close]')) { ev.stopPropagation(); ov.remove(); } });
+      document.body.appendChild(ov); break;
     }
     case 'calAdd': case 'calShare': { const r = route(), f = findItem(view.lists[r.id], el.dataset.i); if (f) calAdd(f.item, meta(r.id).name, act === 'calShare'); break; }
     case 'clearDue': { const f = findItem(view.lists[id], el.dataset.i); if (f) commit({ t: 'editItem', l: id, i: f.item.id, patch: { due: '' } }); break; }
@@ -1128,7 +1133,7 @@ document.addEventListener('pointercancel', endDrag);
 
 /* ---------- Start ---------- */
 /* Neue Version der Seite erkennen und laden (iPhone hält sonst die alte im Speicher) */
-const APP_VERSION = 47;
+const APP_VERSION = 48;
 async function checkUpdate() {
   try {
     const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
