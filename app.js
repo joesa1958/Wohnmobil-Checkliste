@@ -589,7 +589,7 @@ function vRun(id) {
     const x = st.seq[ci + o];
     if (!x) return `<div class="wslot ${cls[o]}" aria-hidden="true"></div>`;
     const b = st.byId[x], d = st.done.has(x), ic = b.it.icon && ico(b.it.icon);
-    if (o === 0) return `<div class="wslot w0">${ic ? `<span class="wicon" aria-hidden="true">${ic}</span>` : ''}<span class="wtext">${esc(b.it.text)}</span>${b.it.note ? `<span class="explain wnote">${esc(b.it.note)}</span>` : ''}${b.it.resp ? `<span class="resp wresp">Zuständig: ${chip(b.it.resp)}</span>` : ''}${b.it.due ? `${dueBadge(b.it.due, 'wdue')}${calLink(b.it, m.name)}` : ''}</div>`;
+    if (o === 0) return `<div class="wslot w0">${ic ? `<span class="wicon" aria-hidden="true">${ic}</span>` : ''}<span class="wtext">${esc(b.it.text)}</span>${b.it.note ? `<span class="explain wnote" data-act="noteToggle" role="button" aria-label="Erklärung ganz anzeigen">${esc(b.it.note)}</span>${b.it.note.length > 110 || b.it.note.split('\n').length > 3 ? `<button class="textbtn notemore" data-act="noteToggle">ganz anzeigen ▾</button>` : ''}` : ''}${b.it.resp ? `<span class="resp wresp">Zuständig: ${chip(b.it.resp)}</span>` : ''}${b.it.due ? `${dueBadge(b.it.due, 'wdue')}${calLink(b.it, m.name)}` : ''}</div>`;
     return `<button class="wslot ${cls[o]} ${d ? 'isdone' : ''}" data-act="wheelJump" data-i="${x}" aria-label="${esc(b.it.text)}${d ? ' (erledigt)' : ''}">${d ? `<span class="wtick">${I.tick(16, 'currentColor', 2.4)}</span>` : ''}<span class="wtext">${esc(b.it.text)}</span></button>`;
   }).join('');
   return `<div class="screen"><div class="run">${head(`<span class="count" style="padding:0 6px">${st.pos} / ${st.total}</span>`)}
@@ -629,7 +629,7 @@ function icsHref(it, listName) {
     'BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${e(it.text + ' - ' + listName)}`, 'TRIGGER:-PT15H', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
   return 'data:text/calendar;charset=utf-8,' + encodeURIComponent(ics);
 }
-const calLink = (it, listName) => it.due ? `<span class="calrow"><button class="callink" data-act="calAdd" data-i="${it.id}">${I.cal || ''}In den Kalender</button><button class="textbtn calshare" data-act="calShare" data-i="${it.id}">als Datei teilen</button></span>` : '';
+const calLink = (it, listName) => it.due ? `<span class="calrow"><button class="callink" data-act="calAdd" data-i="${it.id}">${I.cal || ''}In den Kalender</button></span>` : '';
 async function calAdd(it, listName, share) {
   const ics = decodeURIComponent(icsHref(it, listName).split(',')[1]);
   const name = (it.text.replace(/[^\wÄÖÜäöüß -]+/g, '').trim() || 'Termin') + '.ics';
@@ -887,6 +887,10 @@ document.addEventListener('click', e => {
       if (k >= 0) { run.done.splice(k, 1); toast('Wieder offen'); }
       run.cursor = x; saveRuns(); render(); break;
     }
+    case 'noteToggle': {
+      const n = el.classList.contains('wnote') ? el : el.parentNode.querySelector('.wnote'); if (!n) break;
+      const open = n.classList.toggle('open'); const b = n.parentNode.querySelector('.notemore'); if (b) b.textContent = open ? 'weniger ▴' : 'ganz anzeigen ▾'; break;
+    }
     case 'calAdd': case 'calShare': { const r = route(), f = findItem(view.lists[r.id], el.dataset.i); if (f) calAdd(f.item, meta(r.id).name, act === 'calShare'); break; }
     case 'clearDue': { const f = findItem(view.lists[id], el.dataset.i); if (f) commit({ t: 'editItem', l: id, i: f.item.id, patch: { due: '' } }); break; }
     case 'runLater': {
@@ -1124,7 +1128,7 @@ document.addEventListener('pointercancel', endDrag);
 
 /* ---------- Start ---------- */
 /* Neue Version der Seite erkennen und laden (iPhone hält sonst die alte im Speicher) */
-const APP_VERSION = 46;
+const APP_VERSION = 47;
 async function checkUpdate() {
   try {
     const r = await fetch('version.json?t=' + Date.now(), { cache: 'no-store' });
@@ -1196,6 +1200,7 @@ function wEnd() {
 }
 document.addEventListener('touchstart', e => {
   const w = e.target.closest && e.target.closest('.wheelwrap'); if (!w || e.touches.length !== 1) return;
+  if (e.target.closest('.wnote.open')) return; // aufgeklappte Erklärung scrollt selbst
   if (wCoast) { clearTimeout(wCoast); wCoast = null; }
   const t = e.target, y = e.touches[0].clientY;
   wDrag = { t, y, ly: y, lt: e.timeStamp, vy: 0, used: 0, moved: false };

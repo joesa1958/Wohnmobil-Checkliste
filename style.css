@@ -259,3 +259,10 @@ button.callink { font: inherit; font-size: 15px; font-weight: 600; cursor: point
 
 .calrow { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; }
 .calshare { font-size: 14px; min-height: 36px; }
+
+/* Lange Erklärungen: in der Walze auf 3 Zeilen gekürzt, Antippen klappt sie scrollbar auf; Erledigt bleibt immer sichtbar */
+.run { height: 100dvh; max-height: 100dvh; min-height: 0; box-sizing: border-box; overflow: hidden; }
+.current.wheelwrap { min-height: 0; overflow: hidden; }
+.wslot.w0 .wnote { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; white-space: pre-line; cursor: pointer; position: relative; }
+.wslot.w0 .notemore { font-size: 14px; min-height: 30px; margin-top: -6px; }
+.wslot.w0 .wnote.open { display: block; -webkit-line-clamp: unset; max-height: 22vh; overflow-y: auto; touch-action: pan-y; text-align: left; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 6px 2px; }
