@@ -256,3 +256,6 @@ li.placeholder { background: var(--sel); border-top: 1px solid var(--line2); }
 .tmark.on { background: var(--accent); border-color: var(--accent); color: #fff; }
 
 button.callink { font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; }
+
+.calrow { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.calshare { font-size: 14px; min-height: 36px; }
